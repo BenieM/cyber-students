@@ -22,6 +22,14 @@ class RegistrationHandler(BaseHandler):
                 display_name = email
             if not isinstance(display_name, str):
                 raise Exception()
+            #Adding to get Phone Number
+            phone=body.get('phone')
+            if not isinstance(phone, str):
+                raise Exception()
+            #Adding to get disabilities
+            disabilities=body.get('disabilities')
+            if not isinstance(disabilities, str):
+                raise Exception()
         except Exception as e:
             self.send_error(400, message='You must provide an email address, password and display name!')
             return
@@ -37,6 +45,14 @@ class RegistrationHandler(BaseHandler):
         if not display_name:
             self.send_error(400, message='The display name is invalid!')
             return
+        
+        if not phone:
+            self.send_error(400,message='Please enter a phone number!')
+            return
+        
+        if not disabilities:
+            self.send_error(400,message='Please enter NA if this field does not apply')
+            return
 
         user = yield self.db.users.find_one({
           'email': email
@@ -49,11 +65,16 @@ class RegistrationHandler(BaseHandler):
         yield self.db.users.insert_one({
             'email': email,
             'password': password,
-            'displayName': display_name
+            'displayName': display_name,
+            'phone': phone,
+            'disabilities': disabilities
+            
+            
         })
 
         self.set_status(200)
         self.response['email'] = email
         self.response['displayName'] = display_name
+       
 
         self.write_json()
