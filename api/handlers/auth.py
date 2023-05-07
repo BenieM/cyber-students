@@ -58,6 +58,7 @@ class AuthHandler(BaseHandler):
         self.current_user = {
             'email': user['email'],
             'display_name': user['displayName'],
+            'password': user['password'],
             'phone': self.decrypt(user['phone']),
             'disabilities': self.decrypt(user['disabilities'])
             
