@@ -3,6 +3,7 @@ from time import mktime
 from tornado.escape import json_decode, utf8
 from tornado.gen import coroutine
 from uuid import uuid4
+import bcrypt
 
 from .base import BaseHandler
 
@@ -50,16 +51,17 @@ class LoginHandler(BaseHandler):
             return
 
         user = yield self.db.users.find_one({
-          'email': email
+            'email': email
         }, {
-          'password': 1
+            'password': 1
         })
 
         if user is None:
             self.send_error(403, message='The email address and password are invalid!')
             return
 
-        if user['password'] != password:
+        password_hash = user['password'].encode('utf-8')
+        if not bcrypt.checkpw(password.encode('utf-8'), password_hash):
             self.send_error(403, message='The email address and password are invalid!')
             return
 
