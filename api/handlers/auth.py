@@ -38,8 +38,8 @@ class AuthHandler(BaseHandler):
             'displayName': 1,
             'expiresIn': 1,
             'password': 1,
-            'phone_encrypted': 1,
-            'disabilities_encrypted': 1
+            'phone': 1,
+            'disabilities': 1
         })
 
         if user is None:

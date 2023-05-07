@@ -1,3 +1,4 @@
+#Benie Mambouana
 from datetime import datetime, timedelta
 from time import mktime
 from tornado.escape import json_decode, utf8
@@ -9,7 +10,9 @@ from .base import BaseHandler
 
 class LoginHandler(BaseHandler):
 
+
     @coroutine
+    #Generate Token Function
     def generate_token(self, email):
         token_uuid = uuid4().hex
         expires_in = datetime.now() + timedelta(hours=2)
@@ -59,7 +62,8 @@ class LoginHandler(BaseHandler):
         if user is None:
             self.send_error(403, message='The email address and password are invalid!')
             return
-
+        
+        # Verify that the password matches the hashed password in the database
         password_hash = user['password'].encode('utf-8')
         if not bcrypt.checkpw(password.encode('utf-8'), password_hash):
             self.send_error(403, message='The email address and password are invalid!')
