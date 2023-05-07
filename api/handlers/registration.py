@@ -5,6 +5,7 @@ from tornado.gen import coroutine
 
 from .base import BaseHandler
 
+
 class RegistrationHandler(BaseHandler):
 
     @coroutine
@@ -17,21 +18,23 @@ class RegistrationHandler(BaseHandler):
             password = body['password']
             if not isinstance(password, str):
                 raise Exception()
-            display_name = body.get('displayName')
-            if display_name is None:
-                display_name = email
+            display_name = body.get('displayName', email)
             if not isinstance(display_name, str):
                 raise Exception()
-            #Adding to get Phone Number
-            phone=body.get('phone')
-            if not isinstance(phone, str):
-                raise Exception()
-            #Adding to get disabilities
-            disabilities=body.get('disabilities')
-            if not isinstance(disabilities, str):
-                raise Exception()
+
+            phone = body.get('phone')
+            if phone is not None and not isinstance(phone, str):
+                raise Exception('Phone number must be a string')
+            elif phone is None:
+                raise Exception('Please enter a phone number!')
+            
+            disabilities = body.get('disabilities')
+            if disabilities is not None and not isinstance(disabilities, str):
+                raise Exception('Disabilities must be a string')
+            elif disabilities is None:
+                raise Exception('Please enter NA if this field does not apply')
         except Exception as e:
-            self.send_error(400, message='You must provide an email address, password and display name!')
+            self.send_error(400, message=str(e))
             return
 
         if not email:
@@ -46,14 +49,6 @@ class RegistrationHandler(BaseHandler):
             self.send_error(400, message='The display name is invalid!')
             return
         
-        if not phone:
-            self.send_error(400,message='Please enter a phone number!')
-            return
-        
-        if not disabilities:
-            self.send_error(400,message='Please enter NA if this field does not apply')
-            return
-
         user = yield self.db.users.find_one({
           'email': email
         }, {})
@@ -68,13 +63,11 @@ class RegistrationHandler(BaseHandler):
             'displayName': display_name,
             'phone': phone,
             'disabilities': disabilities
-            
-            
         })
 
-        self.set_status(200)
         self.response['email'] = email
         self.response['displayName'] = display_name
-       
+        self.response['phone'] = phone
+        self.response['disabilities'] = disabilities
 
         self.write_json()
